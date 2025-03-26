@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP ROS Dinner 1 Schedule</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #fafafa;
+            color: #333;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background-color: #fafafa;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            z-index: 10;
+        }
+        .title {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .time-display {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .countdown {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .schedule {
+            margin-top: 20px;
+        }
+        .item {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #ddd;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .item.past {
+            opacity: 0.5;
+        }
+        .item.current {
+            border-left: 4px solid #e84a5f;
+            background-color: #fef9f9;
+            box-shadow: 0 4px 8px rgba(232, 74, 95, 0.1);
+        }
+        .item-time {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        .item.current .item-time {
+            color: #e84a5f;
+        }
+        .item-task {
+            font-size: 1rem;
+            line-height: 1.4;
+        }
+        .item.current .item-task {
+            font-weight: 500;
+        }
+        .no-items {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="title">AP ROS Dinner 1</div>
+        <div class="time-display" id="current-time">--:--:--</div>
+        <div class="countdown" id="countdown">--</div>
+    </div>
+    
+    <div class="schedule" id="schedule">
+        <!-- Schedule items will be populated here via JavaScript -->
+    </div>
+
+    <script>
+        // Schedule data
+        const schedule = [
+            { time: "19:00:00", task: "Start of Rendez-Vous DINNER I" },
+            { time: "19:00:00", task: "START: GUEST ELEVATORS / DINNER 1" },
+            { time: "19:00:00", task: "END REG LOADING ELEVAGTOR: 25/F AP HOUSE KITCHEN" },
+            { time: "19:20:00", task: "Start Playing: Gamelan" },
+            { time: "19:25:00", task: "Tech Support: Audrey x Imogen (2x Handheld Mic)" },
+            { time: "19:30:00", task: "Guests Arrival At The Henderson" },
+            { time: "19:35:00", task: "Short Speech: Audrey Teichmann Intro RDV + Mountain River Jump" },
+            { time: "19:40:00", task: "Short Speech: Imogen (Concept Introduction)" },
+            { time: "19:40:00", task: "WELCOME COCKTAIL\n- Hors D'ouvres & Cocktails by Imogen\n- Champagne Bar\n- Gamelan\n- Artist: Mountain River Jump" },
+            { time: "19:45:00", task: "Start Performance: Mountain River Jump" },
+            { time: "20:00:00", task: "Cue: AP Dinner Playlist for Dinner Table" },
+            { time: "20:20:00", task: "Remove Photo Call Lighting" },
+            { time: "20:25:00", task: "End Artistic Performance: Mountain River Jump" },
+            { time: "20:25:00", task: "Audrey Teichmann Invites Guest to Dinner Table" },
+            { time: "20:30:00", task: "Welcome Speech: AP Peggy Hu" },
+            { time: "20:35:00", task: "Welcome Speech: AB Noah Horowitz" },
+            { time: "20:45:00", task: "MAIN STARTER" },
+            { time: "21:05:00", task: "MAIN COURSE I" },
+            { time: "21:20:00", task: "MAIN COURSE II" },
+            { time: "21:40:00", task: "Short Speech: Audrey - Intro Ella Wang Olsson's Performance" },
+            { time: "21:42:00", task: "PERFORMANCE by Ella Wang Olsson START" },
+            { time: "21:42:00", task: "DESSERT" },
+            { time: "22:05:00", task: "PERFORMANCE by Ella Wang Olsson ENDS" },
+            { time: "22:05:00", task: "DJ, OPEN BAR" },
+            { time: "23:30:00", task: "Bar Closes; Music Slow FadeOut" },
+            { time: "23:35:00", task: "End Of Evening; Guests Begin Leave Venue" },
+            { time: "23:45:00", task: "All Guests Leave" },
+            { time: "00:00:00", task: "DINNER 1 ENDS" }
+        ];
+
+        // Convert time string to Date object
+        function timeToDate(timeStr) {
+            const [hours, minutes, seconds] = timeStr.split(':').map(Number);
+            const date = new Date();
+            
+            // Handle midnight (00:00:00) as the next day
+            if (hours === 0 && minutes === 0 && seconds === 0) {
+                date.setDate(date.getDate() + 1);
+            }
+            
+            date.setHours(hours, minutes, seconds, 0);
+            return date;
+        }
+
+        // Format time as HH:MM:SS
+        function formatTime(date) {
+            return date.toTimeString().substring(0, 8);
+        }
+
+        // Format countdown display
+        function formatCountdown(seconds) {
+            if (seconds < 0) return "Next event has passed";
+            
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            if (hours > 0) {
+                return `${hours}h ${minutes}m ${secs}s until next`;
+            } else if (minutes > 0) {
+                return `${minutes}m ${secs}s until next`;
+            } else {
+                return `${secs}s until next`;
+            }
+        }
+
+        // Find current and next items based on current time
+        function getCurrentAndNextItems() {
+            const now = new Date();
+            let currentItem = null;
+            let nextItem = null;
+            
+            // Convert schedule times to Date objects
+            const scheduleDates = schedule.map(item => {
+                return {
+                    time: timeToDate(item.time),
+                    originalTime: item.time,
+                    task: item.task
+                };
+            }).sort((a, b) => a.time - b.time);
+            
+            for (let i = 0; i < scheduleDates.length; i++) {
+                if (i === scheduleDates.length - 1) {
+                    // Last item
+                    if (now >= scheduleDates[i].time) {
+                        currentItem = scheduleDates[i];
+                        nextItem = null;
+                    } else {
+                        if (i > 0) {
+                            currentItem = scheduleDates[i-1];
+                        }
+                        nextItem = scheduleDates[i];
+                    }
+                } else {
+                    // Check if current time is between this item and the next
+                    if (now >= scheduleDates[i].time && now < scheduleDates[i+1].time) {
+                        currentItem = scheduleDates[i];
+                        nextItem = scheduleDates[i+1];
+                        break;
+                    }
+                }
+            }
+            
+            return { currentItem, nextItem, scheduleDates };
+        }
+
+        // Update the DOM
+        function updateDisplay() {
+            const now = new Date();
+            const timeDisplay = document.getElementById('current-time');
+            const countdownDisplay = document.getElementById('countdown');
+            const scheduleContainer = document.getElementById('schedule');
+            
+            // Update current time
+            timeDisplay.textContent = formatTime(now);
+            
+            // Get current and next items
+            const { currentItem, nextItem, scheduleDates } = getCurrentAndNextItems();
+            
+            // Update countdown
+            if (nextItem) {
+                const secondsToNext = Math.floor((nextItem.time - now) / 1000);
+                countdownDisplay.textContent = formatCountdown(secondsToNext);
+            } else {
+                countdownDisplay.textContent = "All events completed";
+            }
+            
+            // Rebuild schedule display
+            scheduleContainer.innerHTML = '';
+            
+            if (scheduleDates.length === 0) {
+                scheduleContainer.innerHTML = '<div class="no-items">No schedule items found</div>';
+                return;
+            }
+            
+            scheduleDates.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'item';
+                
+                if (currentItem && item.originalTime === currentItem.originalTime) {
+                    itemElement.classList.add('current');
+                } else if (item.time < now) {
+                    itemElement.classList.add('past');
+                }
+                
+                const timeElement = document.createElement('div');
+                timeElement.className = 'item-time';
+                timeElement.textContent = item.originalTime.substring(0, 5); // Show as HH:MM
+                
+                const taskElement = document.createElement('div');
+                taskElement.className = 'item-task';
+                taskElement.textContent = item.task;
+                
+                itemElement.appendChild(timeElement);
+                itemElement.appendChild(taskElement);
+                scheduleContainer.appendChild(itemElement);
+            });
+        }
+
+        // Initialize and update every second
+        updateDisplay();
+        setInterval(updateDisplay, 1000);
+    </script>
+</body>
+</html>
