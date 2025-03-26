@@ -126,17 +126,19 @@
             { time: "00:00:00", task: "DINNER 1 ENDS" }
         ];
 
-        // Convert time string to Date object
+        // Convert time string to Date object for today
         function timeToDate(timeStr) {
             const [hours, minutes, seconds] = timeStr.split(':').map(Number);
             const date = new Date();
             
+            let dayOffset = 0;
             // Handle midnight (00:00:00) as the next day
             if (hours === 0 && minutes === 0 && seconds === 0) {
-                date.setDate(date.getDate() + 1);
+                dayOffset = 1;
             }
             
             date.setHours(hours, minutes, seconds, 0);
+            date.setDate(date.getDate() + dayOffset);
             return date;
         }
 
@@ -151,7 +153,7 @@
             
             const hours = Math.floor(seconds / 3600);
             const minutes = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
+            const secs = Math.floor(seconds % 60);
             
             if (hours > 0) {
                 return `${hours}h ${minutes}m ${secs}s until next`;
@@ -165,39 +167,27 @@
         // Find current and next items based on current time
         function getCurrentAndNextItems() {
             const now = new Date();
-            let currentItem = null;
-            let nextItem = null;
             
-            // Convert schedule times to Date objects
-            const scheduleDates = schedule.map(item => {
-                return {
-                    time: timeToDate(item.time),
-                    originalTime: item.time,
-                    task: item.task
-                };
-            }).sort((a, b) => a.time - b.time);
+            // Convert schedule times to Date objects and sort by time
+            const scheduleDates = schedule.map(item => ({
+                time: timeToDate(item.time),
+                originalTime: item.time,
+                task: item.task
+            })).sort((a, b) => a.time - b.time);
             
-            for (let i = 0; i < scheduleDates.length; i++) {
-                if (i === scheduleDates.length - 1) {
-                    // Last item
-                    if (now >= scheduleDates[i].time) {
-                        currentItem = scheduleDates[i];
-                        nextItem = null;
-                    } else {
-                        if (i > 0) {
-                            currentItem = scheduleDates[i-1];
-                        }
-                        nextItem = scheduleDates[i];
-                    }
-                } else {
-                    // Check if current time is between this item and the next
-                    if (now >= scheduleDates[i].time && now < scheduleDates[i+1].time) {
-                        currentItem = scheduleDates[i];
-                        nextItem = scheduleDates[i+1];
-                        break;
-                    }
+            let currentIndex = -1;
+            
+            // Find the current item index
+            for (let i = scheduleDates.length - 1; i >= 0; i--) {
+                if (now >= scheduleDates[i].time) {
+                    currentIndex = i;
+                    break;
                 }
             }
+            
+            // Determine current and next item
+            let currentItem = currentIndex >= 0 ? scheduleDates[currentIndex] : null;
+            let nextItem = currentIndex < scheduleDates.length - 1 ? scheduleDates[currentIndex + 1] : null;
             
             return { currentItem, nextItem, scheduleDates };
         }
@@ -217,7 +207,7 @@
             
             // Update countdown
             if (nextItem) {
-                const secondsToNext = Math.floor((nextItem.time - now) / 1000);
+                const secondsToNext = (nextItem.time - now) / 1000;
                 countdownDisplay.textContent = formatCountdown(secondsToNext);
             } else {
                 countdownDisplay.textContent = "All events completed";
@@ -235,7 +225,7 @@
                 const itemElement = document.createElement('div');
                 itemElement.className = 'item';
                 
-                if (currentItem && item.originalTime === currentItem.originalTime) {
+                if (currentItem && item.originalTime === currentItem.originalTime && item.task === currentItem.task) {
                     itemElement.classList.add('current');
                 } else if (item.time < now) {
                     itemElement.classList.add('past');
