@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AP ROS BRUNCH Schedule</title>
+    <title>AP Dinner 2 Schedule</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #fafafa;
-            color: #333;
+            background-color: #121212;
+            color: #e0e0e0;
             max-width: 100%;
             overflow-x: hidden;
         }
@@ -19,24 +19,26 @@
             margin-bottom: 20px;
             position: sticky;
             top: 0;
-            background-color: #fafafa;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
+            background-color: #1e1e1e;
+            padding: 15px 0;
+            border-bottom: 1px solid #333;
             z-index: 10;
         }
         .title {
             font-size: 1.5rem;
             margin-bottom: 5px;
             font-weight: 500;
+            color: #f0f0f0;
         }
         .time-display {
             font-size: 2rem;
             font-weight: bold;
             margin-bottom: 10px;
+            color: #f0f0f0;
         }
         .countdown {
             font-size: 1.1rem;
-            color: #666;
+            color: #b0b0b0;
             margin-bottom: 15px;
         }
         .schedule {
@@ -46,26 +48,26 @@
             padding: 15px;
             margin-bottom: 10px;
             border-radius: 8px;
-            border-left: 4px solid #ddd;
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 4px solid #444;
+            background-color: #1e1e1e;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
         }
         .item.past {
             opacity: 0.5;
         }
         .item.current {
-            border-left: 4px solid #e84a5f;
-            background-color: #fef9f9;
-            box-shadow: 0 4px 8px rgba(232, 74, 95, 0.1);
+            border-left: 4px solid #ff6b81;
+            background-color: #2a2225;
+            box-shadow: 0 4px 8px rgba(255, 107, 129, 0.2);
         }
         .item-time {
             font-weight: bold;
             margin-bottom: 5px;
-            color: #555;
+            color: #b0b0b0;
         }
         .item.current .item-time {
-            color: #e84a5f;
+            color: #ff6b81;
         }
         .item-task {
             font-size: 1rem;
@@ -73,6 +75,7 @@
         }
         .item.current .item-task {
             font-weight: 500;
+            color: #f0f0f0;
         }
         .no-items {
             text-align: center;
@@ -84,7 +87,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">AP ROS BRUNCH</div>
+        <div class="title">AP Dinner 2</div>
         <div class="time-display" id="current-time">--:--:--</div>
         <div class="countdown" id="countdown">--</div>
     </div>
@@ -96,45 +99,46 @@
     <script>
         // Schedule data
         const schedule = [
-            { time: "10:00:00", task: "Cue: AP Lunch Playlist" },
-            { time: "10:20:00", task: "Short Speech: Audrey Welcome & RDV" },
-            { time: "10:25:00", task: "Short Speech: Imogen Intro & Open Brunch" },
-            { time: "10:30:00", task: "AP Lunch Playlist ON" },
-            { time: "10:30:00", task: "Start of BRUNCH" },
-            { time: "10:30:00", task: "Start Performance: Mountain River Jump (first session ends at 1130)" },
-            { time: "11:30:00", task: "Natasha Tontey video loop (30 minutes)" },
-            { time: "12:00:00", task: "Start Performance: Mountain River Jump (second session ends at 1330)" },
-            { time: "13:30:00", task: "End of Mountain River Jump" },
-            { time: "14:10:00", task: "Bar Closes; Music Slow FadeOut" },
-            { time: "14:30:00", task: "BRUNCH ENDS" }
+            { time: "19:00:00", task: "END REG LOADING ELEVAGTOR: 25/F AP HOUSE KITCHEN" },
+            { time: "19:00:00", task: "Gamelan and MRV In place" },
+            { time: "19:10:00", task: "Short Speech: Denis Intro RDV + Mountain River Jump" },
+            { time: "19:18:00", task: "Short Speech: Imogen (Concept Introduction)" },
+            { time: "19:20:00", task: "WELCOME COCKTAIL\n- Hors D'ouvres & Cocktails by Imogen\n- Champagne Bar\n- Gamelan\n- Artist: Mountain River Jump" },
+            { time: "19:20:00", task: "Start Performance: Mountain River Jump" },
+            { time: "19:50:00", task: "Ready to Serve MAIN STARTER" },
+            { time: "19:55:00", task: "End Artistic Performance: Mountain River Jump" },
+            { time: "19:55:00", task: "Denis Invites Guest to Dinner Table" },
+            { time: "20:00:00", task: "Welcome Speech: AP Peggy Hu (3mins)" },
+            { time: "20:05:00", task: "Welcome Speech: AP Olivier (5mins)" },
+            { time: "20:10:00", task: "Welcome Speech: AB Vincenzo (2mins)" },
+            { time: "20:15:00", task: "MAIN STARTER" },
+            { time: "20:15:00", task: "tbc (Imogen to intro meal)" },
+            { time: "20:30:00", task: "Move Ella from dinner to green room + bring Main course" },
+            { time: "20:30:00", task: "Ready to Serve MAIN COURSE I" },
+            { time: "20:35:00", task: "MAIN COURSE I" },
+            { time: "20:35:00", task: "Setup to Serve DESSERT" },
+            { time: "20:50:00", task: "Prep Setup: Artist Ella Wang Olsson (Mic, Video)" },
+            { time: "20:50:00", task: "Ready to Serve MAIN COURSE II" },
+            { time: "20:55:00", task: "MAIN COURSE II" },
+            { time: "21:05:00", task: "Tech Support: Ella Wang Olsson, Denis (2x Handheld Mic)" },
+            { time: "21:10:00", task: "In Place: Ella Wang Olsson and brief Denis on call to performance area" },
+            { time: "21:15:00", task: "Short Speech: Denis - Intros Ella Wang Olsson's Performance" },
+            { time: "21:20:00", task: "PERFORMANCE by Ella Wang Olsson START" },
+            { time: "21:20:00", task: "DESSERT" },
+            { time: "21:35:00", task: "Cue: DJ, Open Bar" },
+            { time: "21:40:00", task: "PERFORMANCE by Ella Wang Olsson ENDS" },
+            { time: "21:45:00", task: "DJ and OPEN BAR" },
+            { time: "23:00:00", task: "Bar Closes; Music Slow FadeOut" },
+            { time: "23:15:00", task: "End Of Evening; Guests Begin Leave Venue" },
+            { time: "23:30:00", task: "All Guests Leave" },
+            { time: "23:30:00", task: "DINNER 2 ENDS" }
         ];
 
         // Convert time string to Date object for today
         function timeToDate(timeStr) {
-            // Handle the 12-hour format conversion (specifically for the brunch schedule)
-            let timeString = timeStr;
-            let hours = parseInt(timeString.split(':')[0]);
-            
-            // Standardize to 24-hour format
-            if (timeString.includes('PM') && hours < 12) {
-                hours += 12;
-            } else if (timeString.includes('AM') && hours === 12) {
-                hours = 0;
-            }
-            
-            // Remove AM/PM indicators if they exist
-            timeString = timeString.replace('AM', '').replace('PM', '').trim();
-            
-            // If it's in the format H:MM:SS, convert to HH:MM:SS
-            const parts = timeString.split(':');
-            if (parts[0].length === 1) {
-                timeString = `0${timeString}`;
-            }
-            
-            const [h, minutes, seconds] = timeString.split(':').map(Number);
+            const [hours, minutes, seconds] = timeStr.split(':').map(Number);
             const date = new Date();
-            
-            date.setHours(hours || h, minutes, seconds || 0, 0);
+            date.setHours(hours, minutes, seconds, 0);
             return date;
         }
 
