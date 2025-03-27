@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AP ROS Dinner 1 Schedule</title>
+    <title>AP ROS BRUNCH Schedule</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -84,7 +84,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="title">AP ROS Dinner 1</div>
+        <div class="title">AP ROS BRUNCH</div>
         <div class="time-display" id="current-time">--:--:--</div>
         <div class="countdown" id="countdown">--</div>
     </div>
@@ -96,49 +96,45 @@
     <script>
         // Schedule data
         const schedule = [
-            { time: "19:00:00", task: "Start of Rendez-Vous DINNER I" },
-            { time: "19:00:00", task: "START: GUEST ELEVATORS / DINNER 1" },
-            { time: "19:00:00", task: "END REG LOADING ELEVAGTOR: 25/F AP HOUSE KITCHEN" },
-            { time: "19:20:00", task: "Start Playing: Gamelan" },
-            { time: "19:25:00", task: "Tech Support: Audrey x Imogen (2x Handheld Mic)" },
-            { time: "19:30:00", task: "Guests Arrival At The Henderson" },
-            { time: "19:35:00", task: "Short Speech: Audrey Teichmann Intro RDV + Mountain River Jump" },
-            { time: "19:40:00", task: "Short Speech: Imogen (Concept Introduction)" },
-            { time: "19:40:00", task: "WELCOME COCKTAIL\n- Hors D'ouvres & Cocktails by Imogen\n- Champagne Bar\n- Gamelan\n- Artist: Mountain River Jump" },
-            { time: "19:45:00", task: "Start Performance: Mountain River Jump" },
-            { time: "20:00:00", task: "Cue: AP Dinner Playlist for Dinner Table" },
-            { time: "20:20:00", task: "Remove Photo Call Lighting" },
-            { time: "20:25:00", task: "End Artistic Performance: Mountain River Jump" },
-            { time: "20:25:00", task: "Audrey Teichmann Invites Guest to Dinner Table" },
-            { time: "20:30:00", task: "Welcome Speech: AP Peggy Hu" },
-            { time: "20:35:00", task: "Welcome Speech: AB Noah Horowitz" },
-            { time: "20:45:00", task: "MAIN STARTER" },
-            { time: "21:05:00", task: "MAIN COURSE I" },
-            { time: "21:20:00", task: "MAIN COURSE II" },
-            { time: "21:40:00", task: "Short Speech: Audrey - Intro Ella Wang Olsson's Performance" },
-            { time: "21:42:00", task: "PERFORMANCE by Ella Wang Olsson START" },
-            { time: "21:42:00", task: "DESSERT" },
-            { time: "22:05:00", task: "PERFORMANCE by Ella Wang Olsson ENDS" },
-            { time: "22:05:00", task: "DJ, OPEN BAR" },
-            { time: "23:30:00", task: "Bar Closes; Music Slow FadeOut" },
-            { time: "23:35:00", task: "End Of Evening; Guests Begin Leave Venue" },
-            { time: "23:45:00", task: "All Guests Leave" },
-            { time: "00:00:00", task: "DINNER 1 ENDS" }
+            { time: "10:00:00", task: "Cue: AP Lunch Playlist" },
+            { time: "10:20:00", task: "Short Speech: Audrey Welcome & RDV" },
+            { time: "10:25:00", task: "Short Speech: Imogen Intro & Open Brunch" },
+            { time: "10:30:00", task: "AP Lunch Playlist ON" },
+            { time: "10:30:00", task: "Start of BRUNCH" },
+            { time: "10:30:00", task: "Start Performance: Mountain River Jump (first session ends at 1130)" },
+            { time: "11:30:00", task: "Natasha Tontey video loop (30 minutes)" },
+            { time: "12:00:00", task: "Start Performance: Mountain River Jump (second session ends at 1330)" },
+            { time: "13:30:00", task: "End of Mountain River Jump" },
+            { time: "14:10:00", task: "Bar Closes; Music Slow FadeOut" },
+            { time: "14:30:00", task: "BRUNCH ENDS" }
         ];
 
         // Convert time string to Date object for today
         function timeToDate(timeStr) {
-            const [hours, minutes, seconds] = timeStr.split(':').map(Number);
-            const date = new Date();
+            // Handle the 12-hour format conversion (specifically for the brunch schedule)
+            let timeString = timeStr;
+            let hours = parseInt(timeString.split(':')[0]);
             
-            let dayOffset = 0;
-            // Handle midnight (00:00:00) as the next day
-            if (hours === 0 && minutes === 0 && seconds === 0) {
-                dayOffset = 1;
+            // Standardize to 24-hour format
+            if (timeString.includes('PM') && hours < 12) {
+                hours += 12;
+            } else if (timeString.includes('AM') && hours === 12) {
+                hours = 0;
             }
             
-            date.setHours(hours, minutes, seconds, 0);
-            date.setDate(date.getDate() + dayOffset);
+            // Remove AM/PM indicators if they exist
+            timeString = timeString.replace('AM', '').replace('PM', '').trim();
+            
+            // If it's in the format H:MM:SS, convert to HH:MM:SS
+            const parts = timeString.split(':');
+            if (parts[0].length === 1) {
+                timeString = `0${timeString}`;
+            }
+            
+            const [h, minutes, seconds] = timeString.split(':').map(Number);
+            const date = new Date();
+            
+            date.setHours(hours || h, minutes, seconds || 0, 0);
             return date;
         }
 
@@ -231,9 +227,16 @@
                     itemElement.classList.add('past');
                 }
                 
+                // Format the time nicely for display (just HH:MM format)
+                let displayTime = item.originalTime;
+                if (displayTime.includes(':')) {
+                    const timeParts = displayTime.split(':');
+                    displayTime = timeParts[0] + ':' + timeParts[1];
+                }
+                
                 const timeElement = document.createElement('div');
                 timeElement.className = 'item-time';
-                timeElement.textContent = item.originalTime.substring(0, 5); // Show as HH:MM
+                timeElement.textContent = displayTime;
                 
                 const taskElement = document.createElement('div');
                 taskElement.className = 'item-task';
